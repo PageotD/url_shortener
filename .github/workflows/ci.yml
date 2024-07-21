@@ -59,14 +59,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 4: Extract the version from setup.py
+      # Step 4: Convert GitHub username and repository name to lowercase
+      - name: Convert to lowercase
+        id: lowercase
+        run: |
+          echo "REPOSITORY_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "REPOSITORY_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      # Step 5: Extract the version from setup.py
       - name: Extract version
         id: extract_version
         run: |
           version=$(python setup.py --version)
           echo "VERSION=$version" >> $GITHUB_ENV
 
-      # Step 5: Build and push Docker image with version tag
+      # Step 6: Build and push Docker image with version tag
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
@@ -74,5 +81,5 @@ jobs:
           file: Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/shortener-app:${{ env.VERSION }}
-            ghcr.io/${{ github.repository_owner }}/shortener-app:latest
+            ghcr.io/${{ env.REPOSITORY_OWNER }}/shortener-app:${{ env.VERSION }}
+            ghcr.io/${{ env.REPOSITORY_OWNER }}/shortener-app:latest
