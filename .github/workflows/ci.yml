@@ -69,5 +69,5 @@ jobs:
       # Step 5: Build and push Docker image with version tag
       - name: 'Build Inventory Image'
         run: |
-          docker build . --tag ghcr.io/${{ github.repository_owner }}/${{ env.VERSION }}
-          docker push ghcr.io/${{ github.repository_owner }}/${{ env.VERSION }}
+          docker build . --tag ghcr.io/${{ github.repository_owner }}/shortener-app:${{ env.VERSION }}
+          docker push ghcr.io/${{ github.repository_owner }}/shortener-app:${{ env.VERSION }}
