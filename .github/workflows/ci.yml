@@ -34,7 +34,12 @@ jobs:
       - name: Build package
         run: python setup.py sdist bdist_wheel
 
-      # Step 5: Run unit tests
+      # Step 5: Install the package from the built artifacts
+      - name: Install package
+        run: |
+          pip install dist/*.whl
+
+      # Step 6: Run unit tests
       - name: Run tests
         run: python -m unittest discover
 
