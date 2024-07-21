@@ -5,6 +5,7 @@ It uses the Pydantic library to manage settings and environment variables.
 
 # pydantic is automatically installed with FastAPI
 from pydantic import BaseSettings
+from functools import lru_cache
 
 class Settings(BaseSettings):
     """
@@ -19,6 +20,7 @@ class Settings(BaseSettings):
     base_url: str = "http://localhost:8000"
     db_url: str = "sqlite:///./shortener.db"
 
+@lru_cache
 def get_settings() -> Settings:
     """
     Function to get the current settings for the application.
