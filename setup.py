@@ -28,7 +28,7 @@ def parse_requirements(filename):
         return f.read().splitlines()
 
 setup(
-    name="shortener_app",
+    name="shortener-app",
     version="0.1.0",
     description="A URL shortener application",
     author="Damien Pageot",
