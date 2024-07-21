@@ -41,7 +41,10 @@ jobs:
   docker:
     needs: build
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+      packages: write
+      
     steps:
       # Step 1: Check out the repository's code
       - name: Checkout code
