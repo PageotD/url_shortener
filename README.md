@@ -7,6 +7,7 @@ A simple URL Shortner in Python with FastAPI and SQLite
 - **SQLite** database
 - **SQLAlchemy** for interaction with database
 - CRUD interactions
+- **pydantic** for data validation
 
 ## API overview
 | Endpoint | HTTP Verb | Request Body | Action |
