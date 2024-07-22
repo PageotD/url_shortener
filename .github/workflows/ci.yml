@@ -43,7 +43,7 @@ jobs:
 
       # Step 6: Run unit tests
       - name: Run tests
-        run: python -m unittest discover
+        run: pytest #python -m unittest discover
 
   docker:
     needs: build
