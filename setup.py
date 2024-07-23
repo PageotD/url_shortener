@@ -29,7 +29,7 @@ def parse_requirements(filename):
 
 setup(
     name="shortener-app",
-    version="0.1.1",
+    version="0.1.2",
     description="A URL shortener application",
     author="Damien Pageot",
     #author_email="your.email@example.com",
