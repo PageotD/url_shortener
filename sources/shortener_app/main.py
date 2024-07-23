@@ -119,5 +119,32 @@ def create_url(url: schemas.URLBase, db: Session = Depends(get_db)):
 
     return db_url
 
+@app.get("/{url_key}")
+def forward_to_target_url(url_key: str, request: Request, db: Session = Depends(get_db)):
+    """
+    Forward to the target URL if the key is found and active in the database.
+    
+    Args:
+        url_key (str): The key associated with the target URL.
+        request (Request): The HTTP request object.
+        db (Session): The database session.
+
+    Returns:
+        RedirectResponse: A response that redirects to the target URL.
+
+    Raises:
+        HTTPException: If the key is not found or inactive, raises a 404 Not Found error.
+    """
+    db_url = (
+        db.query(models.URL)
+        .filter(models.URL.key == url_key, models.URL.is_active)
+        .first()
+    )
+
+    if db_url:
+        return RedirectResponse(db_url.target_url)
+    else:
+        raise_not_found(request)
+
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=5000, log_level="info")
