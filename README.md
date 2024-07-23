@@ -11,10 +11,10 @@ A simple URL Shortner in Python with FastAPI and SQLite
 
 ```mermaid
 sequenceDiagram
-    participant Client
-    participant Uvicorn
-    participant FastAPI
-    participant SQLite
+    participant Client as Client (Browser/HTTP Client)
+    participant Uvicorn as Uvicorn (Web Server)
+    participant FastAPI as FastAPI (App Server)
+    participant SQLite as SQLite (Database)
 
     Client->>Uvicorn: HTTP Request
     Uvicorn->>FastAPI: Forward Request
