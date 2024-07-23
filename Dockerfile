@@ -7,4 +7,4 @@ COPY . /app
 RUN pip install --upgrade pip \
     && pip install .
 
-CMD ["python3"]
+CMD ["python3", "-m", "shortener_app.main"]
