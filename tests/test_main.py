@@ -1,8 +1,9 @@
 # shortener_app/test_main.py
 
 import pytest
+from fastapi import Request
 from fastapi.testclient import TestClient
-from shortener_app.main import app, raise_bad_request
+from shortener_app.main import app, raise_bad_request, raise_not_found
 
 # Create a TestClient instance for testing the FastAPI app
 client = TestClient(app)
@@ -66,6 +67,29 @@ def test_raise_bad_request():
         raise_bad_request("Test error message")
     assert excinfo.value.status_code == 400
     assert excinfo.value.detail == "Test error message"
+
+def test_raise_not_found():
+    """
+    Test the raise_bad_request function.
+
+    This function calls raise_bad_request and checks:
+    - An HTTPException is raised with the expected status code and detail message.
+    """
+    scope = {
+        "type": "http",
+        "method": "GET",
+        "path": "/test-url",
+        "raw_path": b"/test-url",
+        "query_string": b"",
+        "headers": [],
+        "client": ("testclient", 50000),
+        "server": ("testserver", 80)
+    }
+    request = Request(scope)
+    with pytest.raises(Exception) as excinfo:
+        raise_not_found(request)
+    assert excinfo.value.status_code == 404
+    assert excinfo.value.detail == f"URL '{request.url}' doesn't exist"
 
 if __name__ == "__main__":
     pytest.main()

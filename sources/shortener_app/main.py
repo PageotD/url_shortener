@@ -10,7 +10,8 @@ import uvicorn
 import validators
 import secrets
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from . import models, schemas
@@ -40,6 +41,19 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def raise_not_found(request):
+    """
+    Raise an HTTP 400 Bad Request exception with a custom message.
+
+    Args:
+        message (str): The error message to include in the exception.
+
+    Raises:
+        HTTPException: An exception with status code 404 and the provided message.
+    """
+    message = f"URL '{request.url}' doesn't exist"
+    raise HTTPException(status_code=404, detail=message)
 
 def raise_bad_request(message):
     """
