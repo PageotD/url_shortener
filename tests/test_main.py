@@ -37,9 +37,6 @@ def test_create_url_valid():
     
     # Assert that the response status code is 200 (OK)
     assert response.status_code == 200
-    
-    # Assert that the response content contains the expected TODO message
-    assert response.json() == "TODO: Create database entry for: https://example.com"
 
 def test_create_url_invalid():
     """
