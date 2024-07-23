@@ -9,6 +9,21 @@ A simple URL Shortner in Python with FastAPI and SQLite
 - CRUD interactions
 - **pydantic** for data validation
 
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Uvicorn
+    participant FastAPI
+    participant SQLite
+
+    Client->>Uvicorn: HTTP Request
+    Uvicorn->>FastAPI: Forward Request
+    FastAPI->>SQLite: Query Database
+    SQLite->>FastAPI: Return Data
+    FastAPI->>Uvicorn: Response Data
+    Uvicorn->>Client: HTTP Response
+```
+
 ## API overview
 | Endpoint | HTTP Verb | Request Body | Action |
 | ------ | ------ | ------ | ------ | 
