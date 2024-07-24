@@ -13,10 +13,12 @@ import secrets
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
+from starlette.datastructures import URL
 
 from . import crud, models, schemas
 from .database import SessionLocal, engine
 from .keygen import create_random_key
+from .config import get_settings
 
 app = FastAPI()
 
@@ -42,6 +44,36 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def get_admin_info(db_url: models.URL) -> schemas.URLInfo:
+    """
+    Generate the administrative URL information for a given URL entry.
+
+    This function takes a `models.URL` object, which represents a URL entry in the database,
+    and constructs the administrative URL information by generating the full URL for accessing
+    the URL's short and admin endpoints. It uses the base URL from the settings and the FastAPI
+    application's URL path for the admin endpoint to create these URLs.
+
+    Args:
+        db_url (models.URL): An instance of `models.URL` representing the URL entry in the database.
+            This object must include the `key` and `secret_key` attributes to construct the URLs.
+
+    Returns:
+        schemas.URLInfo: An instance of `schemas.URLInfo` with updated fields:
+            - `url`: The full URL that redirects to the shortened URL based on the `key`.
+            - `admin_url`: The full URL to access the administrative interface for this URL, based on the `secret_key`.
+
+    Raises:
+        Exception: Raises an exception if the URL or admin endpoint cannot be constructed properly.
+    """
+    base_url = URL(get_settings().base_url)
+    admin_endpoint = app.url_path_for(
+        "administration info", secret_key=db_url.secret_key
+    )
+    db_url.url = str(base_url.replace(path=db_url.key))
+    db_url.admin_url = str(base_url.replace(path=admin_endpoint))
+    return db_url
+
 
 def raise_not_found(request):
     """
@@ -97,23 +129,12 @@ def create_url(url: schemas.URLBase, db: Session = Depends(get_db)):
         HTTPException: If the provided URL is not valid.
     """
     if not validators.url(url.target_url):
+
         raise_bad_request(message="Your provided URL is not valid")
 
-    # Generate random keys for URL shortening
-    key = create_random_key()
-    secret_key = create_random_key(length=8)
-
-    # Create a new URL entry in the database
     db_url = crud.create_db_url(db=db, url=url)
-    db.add(db_url)
-    db.commit()
-    db.refresh(db_url)
-    
-    # Set URL and admin URL for response
-    db_url.url = key
-    db_url.admin_url = secret_key
 
-    return db_url
+    return get_admin_info(db_url)
 
 @app.get("/{url_key}")
 def forward_to_target_url(url_key: str, request: Request, db: Session = Depends(get_db)):
@@ -157,9 +178,7 @@ def get_url_info(secret_key: str, request: Request, db: Session = Depends(get_db
                        raises a 404 Not Found error with a message indicating the URL does not exist.
     """
     if db_url := crud.get_db_url_by_secret_key(db, secret_key=secret_key):
-        db_url.url = db_url.key
-        db_url.admin_url = db_url.secret_key
-        return db_url
+        return get_admin_info(db_url)
     else:
         raise_not_found(request)
 
