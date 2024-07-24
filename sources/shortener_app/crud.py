@@ -57,3 +57,30 @@ def get_db_url_by_secret_key(db: Session, secret_key: str) -> models.URL:
         .filter(models.URL.secret_key == secret_key, models.URL.is_active)
         .first()
     )
+
+def update_db_clicks(db: Session, db_url: schemas.URL) -> models.URL:
+    """
+    Increment the click count for a given URL entry in the database.
+
+    This function updates the `clicks` attribute of a `schemas.URL` object, which represents
+    a URL entry in the database. It increments the click count by one, commits the changes
+    to the database, and refreshes the object to ensure the most recent state is returned.
+
+    Args:
+        db (Session): A SQLAlchemy `Session` object used to interact with the database.
+        db_url (schemas.URL): An instance of `schemas.URL` representing the URL entry to be updated.
+            This object must include the `clicks` attribute, which will be incremented.
+
+    Returns:
+        models.URL: The updated `models.URL` object reflecting the incremented click count and
+            the most recent state after committing the changes to the database.
+
+    Raises:
+        Exception: Raises an exception if there are issues with committing changes to the database
+            or refreshing the object. This could include issues related to database connectivity
+            or transaction management.
+    """
+    db_url.clicks += 1
+    db.commit()
+    db.refresh(db_url)
+    return db_url
