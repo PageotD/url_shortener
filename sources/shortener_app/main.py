@@ -183,5 +183,32 @@ def get_url_info(secret_key: str, request: Request, db: Session = Depends(get_db
     else:
         raise_not_found(request)
 
+@app.delete("/admin/{secret_key}")
+def delete_url(secret_key: str, request: Request, db: Session = Depends(get_db)):
+    """
+    Handle DELETE requests to deactivate a URL entry by its secret key.
+
+    This endpoint deactivates a URL entry in the database identified by the given secret key. 
+    If the URL entry is successfully deactivated, a success message is returned. 
+    If the URL entry is not found, a 404 Not Found error is raised.
+
+    Args:
+        secret_key (str): The secret key associated with the URL entry to be deactivated.
+        request (Request): The HTTP request object, used to generate the error response if needed.
+        db (Session): The SQLAlchemy database session, provided by the `get_db` dependency.
+
+    Returns:
+        dict: A JSON response containing a success message with details about the deactivated URL.
+
+    Raises:
+        HTTPException: If the URL entry with the provided secret key is not found, a 404 Not Found error is raised.
+    """
+    if db_url := crud.deactivate_db_url_by_secret_key(db, secret_key=secret_key):
+        message = f"Successfully deleted shortened URL for '{db_url.target_url}'"
+        return {"detail": message}
+    else:
+        raise_not_found(request)
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=5000, log_level="info")

@@ -84,3 +84,30 @@ def update_db_clicks(db: Session, db_url: schemas.URL) -> models.URL:
     db.commit()
     db.refresh(db_url)
     return db_url
+
+def deactivate_db_url_by_secret_key(db: Session, secret_key: str) -> models.URL:
+    """
+    Deactivates a URL entry in the database by setting its `is_active` status to `False`.
+
+    This function retrieves a URL entry from the database using the provided secret key. If the URL entry is found,
+    it sets the `is_active` attribute to `False`, commits the change to the database, and then refreshes the URL object.
+
+    Args:
+        db (Session): The SQLAlchemy database session to be used for querying and committing changes.
+        secret_key (str): The secret key associated with the URL entry to be deactivated.
+
+    Returns:
+        models.URL: The URL object that was deactivated. If the URL with the given secret key does not exist, `None` is returned.
+
+    Raises:
+        Exception: If the URL entry cannot be found with the provided secret key.
+    """
+    db_url = get_db_url_by_secret_key(db, secret_key)
+
+    if db_url:
+        db_url.is_active = False
+        db.commit()
+        db.refresh(db_url)
+
+    return db_url
+
