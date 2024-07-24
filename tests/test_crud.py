@@ -44,5 +44,18 @@ class TestCrudOperations(unittest.TestCase):
         self.assertEqual(result, expected_url)
         self.db.query().filter().first.assert_called_once()
 
+    def test_get_db_url_by_secret_key(self):
+        """Test retrieving a URL entry by its key."""
+        key = "ABCDE"
+        secret_key = "12345678"
+        expected_url = models.URL(target_url="http://example.com", key=key, secret_key=secret_key)
+        self.db.query = MagicMock()
+        self.db.query().filter().first = MagicMock(return_value=expected_url)
+
+        result = crud.get_db_url_by_secret_key(self.db, key)
+
+        self.assertEqual(result, expected_url)
+        self.db.query().filter().first.assert_called_once()
+
 if __name__ == '__main__':
     unittest.main()

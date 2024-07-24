@@ -136,5 +136,32 @@ def forward_to_target_url(url_key: str, request: Request, db: Session = Depends(
     else:
         raise_not_found(request)
 
+@app.get("/admin/{secret_key}", name="administration info", response_model=schemas.URLInfo)
+def get_url_info(secret_key: str, request: Request, db: Session = Depends(get_db)):
+    """
+    Retrieve URL information based on the provided secret key.
+
+    This endpoint allows for the retrieval of details about a URL stored in the database using its associated secret key.
+    The response includes the shortened URL key and admin URL for the specified secret key.
+
+    Args:
+        secret_key (str): The secret key associated with the URL whose information is to be retrieved.
+        request (Request): The HTTP request object, used here to provide the full URL for error messages.
+        db (Session, optional): A SQLAlchemy database session obtained from the `get_db` dependency.
+
+    Returns:
+        schemas.URLInfo: The details of the URL including its shortened key and admin URL if found.
+
+    Raises:
+        HTTPException: If the URL with the given secret key is not found in the database,
+                       raises a 404 Not Found error with a message indicating the URL does not exist.
+    """
+    if db_url := crud.get_db_url_by_secret_key(db, secret_key=secret_key):
+        db_url.url = db_url.key
+        db_url.admin_url = db_url.secret_key
+        return db_url
+    else:
+        raise_not_found(request)
+
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=5000, log_level="info")

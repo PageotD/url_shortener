@@ -1,12 +1,26 @@
 # shortener_app/test_main.py
 
 import pytest
+from unittest.mock import patch
 from fastapi import Request
 from fastapi.testclient import TestClient
 from shortener_app.main import app, raise_bad_request, raise_not_found
+import shortener_app.schemas as schema
+import shortener_app.crud as crud
 
 # Create a TestClient instance for testing the FastAPI app
 client = TestClient(app)
+
+# Dummy data for testing
+dummy_url_info = {
+    "target_url": "https://example.com",
+    "key": "ABCDE",
+    "secret_key": "ABCDEFGH",
+    "url": "ABCDE",
+    "admin_url": "ABCDEFGH",
+    "is_active": True,   # Assuming this is a boolean field
+    "clicks": 0          # Assuming this is an integer field
+}
 
 def test_read_root():
     """
@@ -90,6 +104,6 @@ def test_raise_not_found():
         raise_not_found(request)
     assert excinfo.value.status_code == 404
     assert excinfo.value.detail == f"URL '{request.url}' doesn't exist"
-
+    
 if __name__ == "__main__":
     pytest.main()
