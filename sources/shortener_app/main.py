@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from . import models, schemas
 from .database import SessionLocal, engine
+from .keygen import create_random_key
 
 app = FastAPI()
 
@@ -99,10 +100,9 @@ def create_url(url: schemas.URLBase, db: Session = Depends(get_db)):
         raise_bad_request(message="Your provided URL is not valid")
 
     # Generate random keys for URL shortening
-    chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    key = "".join(secrets.choice(chars) for _ in range(5))
-    secret_key = "".join(secrets.choice(chars) for _ in range(8))
-    
+    key = create_random_key()
+    secret_key = create_random_key(length=8)
+
     # Create a new URL entry in the database
     db_url = models.URL(
         target_url=url.target_url,
