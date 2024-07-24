@@ -14,7 +14,7 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from . import models, schemas
+from . import crud, models, schemas
 from .database import SessionLocal, engine
 from .keygen import create_random_key
 
@@ -104,11 +104,7 @@ def create_url(url: schemas.URLBase, db: Session = Depends(get_db)):
     secret_key = create_random_key(length=8)
 
     # Create a new URL entry in the database
-    db_url = models.URL(
-        target_url=url.target_url,
-        key=key,
-        secret_key=secret_key
-    )
+    db_url = crud.create_db_url(db=db, url=url)
     db.add(db_url)
     db.commit()
     db.refresh(db_url)
@@ -135,13 +131,7 @@ def forward_to_target_url(url_key: str, request: Request, db: Session = Depends(
     Raises:
         HTTPException: If the key is not found or inactive, raises a 404 Not Found error.
     """
-    db_url = (
-        db.query(models.URL)
-        .filter(models.URL.key == url_key, models.URL.is_active)
-        .first()
-    )
-
-    if db_url:
+    if db_url := crud.get_db_url_by_key(db=db, url_key=url_key):
         return RedirectResponse(db_url.target_url)
     else:
         raise_not_found(request)
